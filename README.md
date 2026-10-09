@@ -144,6 +144,45 @@ TG 客户端本身就有多流、并且会自动分流，所以 lanes 让**每�
 
 `openssl rand` 走系统 CSPRNG，是真随机。任一绑定缺失，`mkCfg` 直接抛错，`/health` 会返回 `500` 而不是 `{"ok":true}`。
 
+## 在 Telegram 客户端中使用
+
+本 Worker 就是 Telegram 官方 Web Proxy（td web-proxy）的后端，对应客户端的 **WEB 代理**类型（序列化类型码 `4`）。该类型自 Telegram Desktop 7.1 起支持；Android 侧官方仍在实验阶段（本实现已包含 Android 桥），iOS 目前只有协议方案。
+
+客户端只接受两个值：
+
+| 值 | 填什么 |
+| --- | --- |
+| Proxy server | Worker 对外的**域名**；不要带 `https://`、端口、路径或查询串 |
+| Proxy secret | Worker 绑定的 `SECRET`：`32` 位 hex，或 `dd` 前缀的 `34` 位 hex |
+
+`https` 与端口 `443` 由 WEB 代理类型固定，客户端里不可改；域名以**小写 ASCII/IDNA** 形式填写。
+
+### 添加方式
+
+点链接（客户端会直接弹出添加代理）：
+
+```text
+https://t.me/webproxy?server=<你的域名>&secret=<你的 SECRET>
+```
+
+等价写法：`tg://webproxy?server=<你的域名>&secret=<你的 SECRET>`。
+
+手动填写：设置 → 高级 → 连接类型 → 添加代理 → 类型选 `WEB` → 服务器填域名 → 端口 `443`（固定）→ 密钥填 `SECRET`。
+
+### 握手流程
+
+客户端用 `secret` 在本地推导能力签名，再打开 `https://<你的域名>/?bridge=<能力签名>`：
+
+```text
+capability = base64url( HMAC-SHA256( key = secret 字节, message = "tdesktop-web-proxy-bridge-v1\n" + 小写域名 ) )
+```
+
+签名匹配才下发带一次性 `bootstrap` 的页面，随后 `POST /api/v1/session` 换 `session` token，按 `X-Carrier-Mode: websocket-lanes` 开 lane 中继。据此排查：
+
+- 客户端打开的是普通占位页、没有开始连接 → 域名或 `SECRET` 有一项没对上。注意 `dd` 前缀与不带前缀的同一密钥算出的能力签名**不同**，两端写法必须一致
+- `/health` 返回 `500` → `SECRET` / `BOOT` 至少缺一个
+- `/health` 返回 `{"ok":true}` → 绑定齐全，问题在客户端填的域名 / 密钥上
+
 ## 路由
 
 | 路径 | 方法 | 说明 |
