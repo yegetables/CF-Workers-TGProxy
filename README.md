@@ -214,4 +214,10 @@ capability = base64url( HMAC-SHA256( key = secret 字节, message = "tdesktop-we
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/ToiCF/CF-Workers-TGProxy.svg?variant=adaptive)](https://starchart.cc/ToiCF/CF-Workers-TGProxy)
+<a href="https://www.star-history.com/?repos=toicf%2Fcf-workers-tgproxy&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=toicf/cf-workers-tgproxy&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=toicf/cf-workers-tgproxy&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=toicf/cf-workers-tgproxy&type=date&legend=top-left" />
+ </picture>
+</a>
