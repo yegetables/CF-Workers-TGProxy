@@ -1,0 +1,13 @@
+{
+  // Minimal build config for Cloudflare Workers Builds (Git integration).
+  // Intentionally contains no account, zone, route, hostname or secret:
+  // the Worker route and DNS record are managed on the Cloudflare side,
+  // and SECRET / BOOT are Worker secret bindings.
+  "name": "cf-workers-tgproxy",
+  "main": "telegram_webproxy.js",
+  "compatibility_date": "2026-10-06",
+  "observability": {
+    "enabled": true
+  },
+  "workers_dev": false
+}
